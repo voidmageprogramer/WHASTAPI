@@ -42,9 +42,12 @@ def ordenar_por_fecha_y_hora(registros):
 
 def agregar_mensajes_log(texto):
     mensajes_log.append(texto)
+    
+    # Convertir dict a string si es necesario
+    if isinstance(texto, dict):
+        texto = json.dumps(texto, indent=2)  # Agrega indent para que sea legible en HTML
 
-    #Guardar el mensaje en la base de datos
-    nuevo_registro = Log(texto = texto)
+    nuevo_registro = Log(texto=texto)
     db.session.add(nuevo_registro)
     db.session.commit()
 
