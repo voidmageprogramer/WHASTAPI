@@ -70,7 +70,18 @@ def recibir_mensajes(req):
     req = request.get_json()
     agregar_mensajes_log(req)
 
-    return jsonify({'message':'EVENT_RECEIVED'})
+    try:
+        req = request.get_json()
+        entry =req['entry'][0]
+        changes = entry['changes'][0]
+        value = changes['value']
+        objeto_mensaje = value['messages']
+        agregar_mensajes_log(json.dumps(objeto_mensaje))
+
+        return jsonify({'message':'EVENT_RECEIVED'})
+    except Exception as e:
+
+        return jsonify({'message':'EVENT_RECEIVED'})
 
 @app.route('/webhook', methods=['GET','POST'])
 def webhook():
