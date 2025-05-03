@@ -64,13 +64,10 @@ def verificar_token(req):
         return jsonify({'error':'Token Invalido'}),401
 
 def recibir_mensajes(req):
-    try:
-        req = request.get_json()
-        agregar_mensajes_log(req)
+    req = request.get_json()
+    agregar_mensajes_log(req)
 
-        return jsonify({'message':'EVENT_RECEIVED'})
-    except Exception as e:
-        return jsonify({'message':'EVENT_RECEIVED'})
+    return jsonify({'message':'EVENT_RECEIVED'})
 
 @app.route('/webhook', methods=['GET','POST'])
 def webhook():
