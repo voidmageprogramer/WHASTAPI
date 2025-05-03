@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import http.client
 import json
 
 app = Flask(__name__)
@@ -20,11 +21,6 @@ class Log(db.Model):
 with app.app_context():
     db.create_all()
 
-    prueba1 = Log(texto="mensaje de prueba 1")
-    prueba2 = Log(texto="mensaje de prueba 2")
-    db.session.add(prueba1)
-    db.session.add(prueba2)
-    db.session.commit()
 
 
 
@@ -44,7 +40,7 @@ def ordenar_por_fecha_y_hora(registros):
 
 # Funcion para agregar mensages y guardar en la base de datos
 
-def agregar_mensages_log(texto):
+def agregar_mensajes_log(texto):
     mensajes_log.append(texto)
 
     #Guardar el mensaje en la base de datos
@@ -54,6 +50,36 @@ def agregar_mensages_log(texto):
 
 #agregar_mensages_log(json.dumps ("Test1"))
 
+
+#Token de verificacion para configuracio
+TOKEN_BISKIT = "BISKIT"
+
+def verificar_token(req):
+    token = req.args.get('hub.verify_token')
+    challenge = req.args.get('hub.challenge')
+
+    if challenge and token == TOKEN_BISKIT:
+        return challenge
+    else:
+        return jsonify({'error':'Token Invalido'}),401
+
+def recibir_mensajes(req):
+    try:
+        req = request.get_json()
+        agregar_mensajes_log(req)
+
+        return jsonify({'message':'EVENT_RECEIVED'})
+    except Exception as e:
+        return jsonify({'message':'EVENT_RECEIVED'})
+
+@app.route('/webhook', methods=['GET','POST'])
+def webhook():
+    if request.method == 'GET':
+        challenge = verificar_token(request)
+        return challenge
+    elif request.method == 'POST':
+        reponse = recibir_mensajes(request)
+        return reponse
 
 if __name__=="__main__":
     app.run(host='0.0.0.0' ,port=80 ,debug=True)
